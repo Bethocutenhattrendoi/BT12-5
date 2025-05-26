@@ -1,43 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="24dp"
+    android:padding="20dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <EditText
         android:id="@+id/dialogEditName"
-        android:hint="Nhập họ tên"
+        android:hint="Họ tên"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName" />
+        android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/dialogEditMSSV"
-        android:hint="Nhập MSSV"
-        android:layout_marginTop="12dp"
+        android:hint="MSSV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:inputType="text"/>
 
     <LinearLayout
         android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_marginTop="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/dialogBtnCancel"
-            android:text="Huỷ"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
 
         <Button
             android:id="@+id/dialogBtnSave"
             android:text="Lưu"
-            android:layout_marginStart="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/dialogBtnCancel"
+            android:text="Huỷ"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 </LinearLayout>

@@ -1,12 +1,12 @@
 package com.example.bt125
 
 import android.app.AlertDialog
-import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.bt125.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
     private var selectedPosition = -1
     private lateinit var adapter: ArrayAdapter<String>
 
+    private lateinit var addStudentLauncher: ActivityResultLauncher<Intent>
+    private lateinit var updateStudentLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,16 +31,48 @@ class MainActivity : AppCompatActivity() {
         btnUpdate = findViewById(R.id.btnUpdate)
         btnDelete = findViewById(R.id.btnDelete)
 
+        addStudentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val name = data?.getStringExtra("name")
+                val mssv = data?.getStringExtra("mssv")
+                if (name != null && mssv != null) {
+                    studentList.add("$name - $mssv")
+                    adapter.notifyDataSetChanged()
+                    Toast.makeText(this, "Thêm sinh viên thành công", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        updateStudentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && selectedPosition != -1) {
+                val data = result.data
+                val name = data?.getStringExtra("name")
+                val mssv = data?.getStringExtra("mssv")
+                if (name != null && mssv != null) {
+                    studentList[selectedPosition] = "$name - $mssv"
+                    adapter.notifyDataSetChanged()
+                    Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show()
+                    selectedPosition = -1
+                }
+            }
+        }
+
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, studentList)
         gridView.adapter = adapter
 
         btnAdd.setOnClickListener {
-            showStudentDialog(isUpdate = false)
+            val intent = Intent(this, AddStudentActivity::class.java)
+            addStudentLauncher.launch(intent)
         }
 
         btnUpdate.setOnClickListener {
             if (selectedPosition != -1) {
-                showStudentDialog(isUpdate = true)
+                val student = studentList[selectedPosition].split(" - ")
+                val intent = Intent(this, UpdateStudentActivity::class.java)
+                intent.putExtra("name", student[0])
+                intent.putExtra("mssv", student[1])
+                updateStudentLauncher.launch(intent)
             } else {
                 Toast.makeText(this, "Vui lòng chọn sinh viên để cập nhật", Toast.LENGTH_SHORT).show()
             }
@@ -55,49 +90,6 @@ class MainActivity : AppCompatActivity() {
             selectedPosition = position
             Toast.makeText(this, "Đã chọn: ${studentList[position]}", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun showStudentDialog(isUpdate: Boolean) {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_student)
-
-        val editName = dialog.findViewById<EditText>(R.id.dialogEditName)
-        val editMSSV = dialog.findViewById<EditText>(R.id.dialogEditMSSV)
-        val btnSave = dialog.findViewById<Button>(R.id.dialogBtnSave)
-        val btnCancel = dialog.findViewById<Button>(R.id.dialogBtnCancel)
-
-        if (isUpdate && selectedPosition != -1) {
-            val student = studentList[selectedPosition].split(" - ")
-            editName.setText(student[0])
-            editMSSV.setText(student[1])
-        }
-
-        btnSave.setOnClickListener {
-            val name = editName.text.toString().trim()
-            val mssv = editMSSV.text.toString().trim()
-
-            if (name.isNotBlank() && mssv.isNotBlank()) {
-                val studentInfo = "$name - $mssv"
-                if (isUpdate) {
-                    studentList[selectedPosition] = studentInfo
-                    Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show()
-                    selectedPosition = -1
-                } else {
-                    studentList.add(studentInfo)
-                    Toast.makeText(this, "Thêm sinh viên thành công", Toast.LENGTH_SHORT).show()
-                }
-                adapter.notifyDataSetChanged()
-                dialog.dismiss()
-            } else {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên và MSSV", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.show()
     }
 
     private fun showDeleteConfirmationDialog() {
